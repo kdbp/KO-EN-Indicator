@@ -89,23 +89,41 @@ internal static class CaretTracker
             var selection = textPattern.GetSelection();
             if (selection is null || selection.Length == 0) return default;
 
-            var range = selection[0];
-            var rects = range.GetBoundingRectangles();
+            var caretRange = selection[0];
 
-            // 커서만 있고 선택이 없으면(0폭) 경계 사각형이 비어 있을 수 있다.
-            // 이때는 캐럿 위치의 한 글자만큼 확장해 사각형을 얻는다.
-            if (rects.Length == 0)
+            // 1) 선택/캐럿 범위의 사각형. 표준 Edit·브라우저 리치 에디터(ProseMirror 등)에서 동작.
+            var rects = caretRange.GetBoundingRectangles();
+            if (rects.Length > 0 && IsValidRect(rects[0]))
             {
-                var expanded = range.Clone();
-                expanded.ExpandToEnclosingUnit(TextUnit.Character);
-                rects = expanded.GetBoundingRectangles();
-                if (rects.Length == 0) return default;
+                var r = rects[0];
+                return new CaretInfo(true, (int)Math.Round(r.Left), (int)Math.Round(r.Bottom));
             }
 
-            System.Windows.Rect r = rects[0];
-            if (double.IsInfinity(r.X) || double.IsNaN(r.X) || r.Height <= 0) return default;
+            // 2) XAML TextBox(윈도우 탐색기 주소창/검색창 등)는 collapsed 캐럿의 사각형을
+            //    빈 배열로 준다. [문서 시작 → 캐럿] 범위의 오른쪽 끝이 곧 캐럿 위치다.
+            var run = textPattern.DocumentRange.Clone();
+            run.MoveEndpointByRange(TextPatternRangeEndpoint.End, caretRange, TextPatternRangeEndpoint.Start);
+            var runRects = run.GetBoundingRectangles();
+            if (runRects.Length > 0 && IsValidRect(runRects[^1]))
+            {
+                var last = runRects[^1]; // 여러 줄이면 캐럿이 있는 마지막 줄
+                return new CaretInfo(true, (int)Math.Round(last.Right), (int)Math.Round(last.Bottom));
+            }
 
-            return new CaretInfo(true, (int)Math.Round(r.Left), (int)Math.Round(r.Bottom));
+            // 3) 캐럿이 맨 앞이라 위 범위가 비면, 문서 전체 사각형의 왼쪽을 캐럿으로 본다.
+            var docRects = textPattern.DocumentRange.GetBoundingRectangles();
+            if (docRects.Length > 0 && IsValidRect(docRects[0]))
+            {
+                var d = docRects[0];
+                return new CaretInfo(true, (int)Math.Round(d.Left), (int)Math.Round(d.Bottom));
+            }
+
+            // 4) 내용이 완전히 빈 단일 줄 입력창: 요소 자체의 왼쪽 아래 근처에 표시.
+            var box = focused.Current.BoundingRectangle;
+            if (!box.IsEmpty && box.Width > 0 && box.Height > 0 && box.Height < 80)
+                return new CaretInfo(true, (int)Math.Round(box.Left) + 3, (int)Math.Round(box.Bottom) - 6);
+
+            return default;
         }
         catch
         {
@@ -113,6 +131,9 @@ internal static class CaretTracker
             return default;
         }
     }
+
+    private static bool IsValidRect(System.Windows.Rect r)
+        => !double.IsNaN(r.X) && !double.IsInfinity(r.X) && !double.IsNaN(r.Width) && r.Height > 0;
 
     /// <summary>
     /// 포커스된 요소가 "직접 글자를 입력할 수 있는" 편집 컨트롤인지 판별한다.
