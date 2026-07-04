@@ -13,7 +13,7 @@ internal sealed class MainForm : Form
     private int _lastX = int.MinValue, _lastY = int.MinValue;
     private NotifyIcon _tray = null!;
     private Icon _appIcon = null!;
-    private IntPtr _appIconHandle;
+    private Icon _trayIcon = null!;
     private ToggleSwitch _switchEnabled = null!;
     private ToggleSwitch _switchAutoStart = null!;
     private Label _statusLabel = null!;
@@ -67,8 +67,9 @@ internal sealed class MainForm : Form
         ClientSize = new Size(460, 184);
         BackColor = Color.White;
 
-        // 아이콘은 한 번만 생성해 폼과 트레이가 공유한다(HICON 핸들 낭비 방지).
-        _appIcon = CreateAppIcon(out _appIconHandle);
+        // 임베드된 앱 아이콘을 폼(큰 크기)과 트레이(작은 크기)에 각각 로드한다.
+        _appIcon = LoadAppIcon(Size.Empty);
+        _trayIcon = LoadAppIcon(new Size(16, 16));
         Icon = _appIcon;
 
         // ----- 작동 on/off 행 -----
@@ -118,7 +119,7 @@ internal sealed class MainForm : Form
 
         _tray = new NotifyIcon
         {
-            Icon = _appIcon,
+            Icon = _trayIcon,
             Text = "한/영 입력 표시기",
             Visible = true,
             ContextMenuStrip = menu,
@@ -197,34 +198,22 @@ internal sealed class MainForm : Form
         _tray.Visible = false;
         _tray.Dispose();
 
-        // GetHicon으로 만든 HICON은 수동 회수(리소스 누수 방지)
         _appIcon?.Dispose();
-        if (_appIconHandle != IntPtr.Zero) Native.DestroyIcon(_appIconHandle);
+        _trayIcon?.Dispose();
 
         Application.Exit();
     }
 
     /// <summary>
-    /// '한' 배지 형태의 앱 아이콘을 런타임에 생성(리소스 파일 불필요).
-    /// GetHicon으로 만든 HICON은 Icon.Dispose로 해제되지 않으므로,
-    /// 핸들을 밖으로 넘겨 종료 시 DestroyIcon으로 직접 회수한다.
+    /// 실행파일에 임베드된 appicon.ico를 불러온다.
+    /// size가 비어 있으면 다중 해상도 아이콘(창/작업표시줄용),
+    /// 지정되면 해당 크기(트레이용)로 로드한다.
     /// </summary>
-    private static Icon CreateAppIcon(out IntPtr hIcon)
+    private static Icon LoadAppIcon(Size size)
     {
-        using var bmp = new Bitmap(32, 32);
-        using (var g = Graphics.FromImage(bmp))
-        {
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            g.Clear(Color.Transparent);
-            using var bg = new SolidBrush(Color.FromArgb(0x2B, 0x57, 0x9A));
-            g.FillEllipse(bg, 0, 0, 31, 31);
-            using var f = new Font("맑은 고딕", 15f, FontStyle.Bold, GraphicsUnit.Pixel);
-            using var tb = new SolidBrush(Color.White);
-            using var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString("한", f, tb, new RectangleF(0, 0, 32, 32), fmt);
-        }
-        hIcon = bmp.GetHicon();
-        return Icon.FromHandle(hIcon);
+        var stream = typeof(MainForm).Assembly.GetManifestResourceStream("appicon.ico");
+        if (stream is null) return (Icon)SystemIcons.Application.Clone();
+        using (stream)
+            return size.IsEmpty ? new Icon(stream) : new Icon(stream, size);
     }
 }

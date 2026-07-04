@@ -21,10 +21,18 @@
 
     <AssemblyName>한영표시기</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>appicon.ico</ApplicationIcon>
     <Version>1.0.0</Version>
     <AssemblyTitle>한/영 입력 표시기</AssemblyTitle>
     <Product>한/영 입력 표시기</Product>
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
   </PropertyGroup>
+
+  <!-- 창/트레이에서 런타임에 불러 쓸 아이콘 -->
+  <ItemGroup>
+    <EmbeddedResource Include="appicon.ico">
+      <LogicalName>appicon.ico</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>
