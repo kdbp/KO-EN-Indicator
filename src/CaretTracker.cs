@@ -17,7 +17,19 @@ internal static class CaretTracker
     {
         if (foreground == IntPtr.Zero) return true;
 
-        IntPtr imeWnd = ImmGetDefaultIMEWnd(foreground);
+        // 실제 입력 포커스를 가진 컨트롤 기준으로 IME를 조회한다.
+        // 새 메모장(RichEditD2DPT)처럼 최상위 창의 IME 창이 변환 모드를
+        // 항상 0으로 보고하는 경우가 있어, 포커스 컨트롤이 있으면 그쪽을 쓴다.
+        IntPtr target = foreground;
+        uint fgTid = GetWindowThreadProcessId(foreground, out _);
+        if (fgTid != 0)
+        {
+            var gti = new GUITHREADINFO { cbSize = Marshal.SizeOf<GUITHREADINFO>() };
+            if (GetGUIThreadInfo(fgTid, ref gti) && gti.hwndFocus != IntPtr.Zero)
+                target = gti.hwndFocus;
+        }
+
+        IntPtr imeWnd = ImmGetDefaultIMEWnd(target);
         if (imeWnd == IntPtr.Zero)
             return true; // IME 자체가 없는 레이아웃(순수 영문 등) → 영어로 간주
 
