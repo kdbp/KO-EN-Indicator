@@ -20,13 +20,13 @@ internal sealed class Overlay : IDisposable
     private static readonly WndProcDelegate _wndProc = StaticWndProc;
 
     private readonly IntPtr _hwnd;
-    private readonly Bitmap _glyph;   // 미리 그려둔 'A' 비트맵
+    private Bitmap _glyph;   // 현재 크기로 그려둔 'A' 비트맵
     private bool _visible;
     private bool _disposed;
 
     public Overlay()
     {
-        _glyph = BuildGlyph();
+        _glyph = BadgeRenderer.Render(BadgeRenderer.DefaultSize);
         EnsureClassRegistered();
 
         int exStyle = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST
@@ -116,47 +116,13 @@ internal sealed class Overlay : IDisposable
         _visible = false;
     }
 
-    /// <summary>흰색 'A'가 들어간 어두운 반투명 둥근 배지 비트맵을 만든다.</summary>
-    private static Bitmap BuildGlyph()
+    /// <summary>배지 글자 크기(px)를 바꾼다. 다음 표시부터 새 크기로 그려진다.</summary>
+    public void SetSize(int fontPx)
     {
-        const int w = 20, h = 22;
-        var bmp = new Bitmap(w, h, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        using var g = Graphics.FromImage(bmp);
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-        g.TextRenderingHint = TextRenderingHint.AntiAlias;
-        g.Clear(Color.Transparent);
-
-        var rect = new Rectangle(0, 0, w - 1, h - 1);
-        using (var path = RoundedRect(rect, 6))
-        {
-            using var bg = new SolidBrush(Color.FromArgb(220, 25, 25, 25));
-            g.FillPath(bg, path);
-            using var border = new Pen(Color.FromArgb(170, 255, 255, 255), 1f);
-            g.DrawPath(border, path);
-        }
-
-        using var font = new Font("Segoe UI", 12f, FontStyle.Bold, GraphicsUnit.Pixel);
-        using var text = new SolidBrush(Color.White);
-        using var fmt = new StringFormat
-        {
-            Alignment = StringAlignment.Center,
-            LineAlignment = StringAlignment.Center,
-        };
-        g.DrawString("A", font, text, new RectangleF(0, -1, w, h), fmt);
-
-        return bmp;
-    }
-
-    private static GraphicsPath RoundedRect(Rectangle r, int radius)
-    {
-        int d = radius * 2;
-        var path = new GraphicsPath();
-        path.AddArc(r.X, r.Y, d, d, 180, 90);
-        path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
-        path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
-        path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
-        path.CloseFigure();
-        return path;
+        if (_disposed) return;
+        var old = _glyph;
+        _glyph = BadgeRenderer.Render(fontPx);
+        old.Dispose();
     }
 
     public void Dispose()

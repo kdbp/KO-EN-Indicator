@@ -12,6 +12,7 @@ internal static class AppSettings
 
     private const string SettingsKey = @"Software\한영표시기";
     private const string EnabledValue = "Enabled";
+    private const string BadgeSizeValue = "BadgeSize";
 
     public static string ExePath =>
         Environment.ProcessPath ?? System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName!;
@@ -42,6 +43,34 @@ internal static class AppSettings
         catch
         {
             // 보안 정책/백신 차단 등으로 쓰기 실패 → 무시
+        }
+    }
+
+    // ---- 배지 크기(글자 px) ----
+    public static int GetBadgeSize()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(SettingsKey);
+            object? v = key?.GetValue(BadgeSizeValue);
+            return v is null ? BadgeRenderer.DefaultSize : BadgeRenderer.Clamp(Convert.ToInt32(v));
+        }
+        catch
+        {
+            return BadgeRenderer.DefaultSize;
+        }
+    }
+
+    public static void SetBadgeSize(int fontPx)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(SettingsKey);
+            key.SetValue(BadgeSizeValue, BadgeRenderer.Clamp(fontPx), RegistryValueKind.DWord);
+        }
+        catch
+        {
+            // 무시
         }
     }
 

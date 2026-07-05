@@ -109,6 +109,12 @@ internal static class Native
     public static extern IntPtr SendMessageTimeout(IntPtr hWnd, int Msg, IntPtr wParam,
         IntPtr lParam, int fuFlags, int uTimeout, out IntPtr lpdwResult);
 
+    // TrackBar 썸(thumb) 사각형 조회
+    public const int TBM_GETTHUMBRECT = 0x0400 + 25;
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, ref RECT lParam);
+
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern ushort RegisterClassEx(ref WNDCLASSEX lpwcx);
 
