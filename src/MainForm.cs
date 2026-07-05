@@ -17,6 +17,7 @@ internal sealed class MainForm : Form
     private ToggleSwitch _switchEnabled = null!;
     private ToggleSwitch _switchAutoStart = null!;
     private Label _statusLabel = null!;
+    private EventWaitHandle? _quitEvent;
     private bool _reallyExit;
 
     public MainForm(bool startMinimized)
@@ -47,6 +48,7 @@ internal sealed class MainForm : Form
         _timer.Start();
 
         UpdateStatusLabel();
+        SetupQuitListener();
 
         if (startMinimized)
         {
@@ -55,6 +57,31 @@ internal sealed class MainForm : Form
             ShowInTaskbar = false;
             Load += (_, _) => Hide();
         }
+    }
+
+    /// <summary>
+    /// 나중에 실행된 새 인스턴스가 보내는 종료 신호를 대기한다.
+    /// 신호를 받으면(자동 교체) 스스로 정상 종료한다.
+    /// </summary>
+    private void SetupQuitListener()
+    {
+        try
+        {
+            _ = Handle; // 핸들을 미리 만들어 BeginInvoke가 가능하도록
+            _quitEvent = new EventWaitHandle(false, EventResetMode.AutoReset, Program.QuitEventName);
+            var t = new Thread(() =>
+            {
+                try
+                {
+                    _quitEvent.WaitOne();
+                    if (!IsDisposed) BeginInvoke(new Action(ExitApp));
+                }
+                catch { /* 무시 */ }
+            })
+            { IsBackground = true, Name = "QuitListener" };
+            t.Start();
+        }
+        catch { /* 이벤트 생성 실패 시 자동 교체만 비활성 */ }
     }
 
     private void BuildUi()
