@@ -85,6 +85,7 @@ internal static class Native
     public const byte AC_SRC_OVER = 0x00;
     public const byte AC_SRC_ALPHA = 0x01;
 
+    public const int SMTO_NORMAL = 0x0000;
     public const int SMTO_ABORTIFHUNG = 0x0002;
 
     // ---- 함수 ----

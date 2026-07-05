@@ -34,15 +34,17 @@ internal static class CaretTracker
             return true; // IME 자체가 없는 레이아웃(순수 영문 등) → 영어로 간주
 
         // 다른 프로세스여도 IME 창에 변환 모드를 물어볼 수 있다.
+        // 주의: SMTO_ABORTIFHUNG를 쓰면, 우리 앱이 캐럿 조회(UI Automation)로 대상 창의
+        // UI 스레드를 바쁘게 만든 사이 "응답 없음"으로 오인해 즉시 실패한다(새 메모장에서
+        // 한글이 영어로 오판되는 원인). ABORTIFHUNG 없이 타임아웃까지 응답을 기다린다.
         IntPtr ok = SendMessageTimeout(imeWnd, WM_IME_CONTROL, (IntPtr)IMC_GETCONVERSIONMODE,
-            IntPtr.Zero, SMTO_ABORTIFHUNG, 120, out IntPtr result);
+            IntPtr.Zero, SMTO_NORMAL, 250, out IntPtr result);
 
         if (ok == IntPtr.Zero)
             return true; // 응답 실패(정지/권한) → 영어로 간주
 
         int mode = result.ToInt32();
-        bool korean = (mode & IME_CMODE_NATIVE) != 0;
-        return !korean;
+        return (mode & IME_CMODE_NATIVE) == 0;
     }
 
     /// <summary>
