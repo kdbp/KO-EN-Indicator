@@ -13,7 +13,7 @@ Windows 11에서 **영어 입력 상태일 때만 입력 커서 아래에 작은
 
 처음 실행하면 두 옵션이 켜져 있습니다. 창의 닫기·최소화 버튼을 누르면 트레이로 숨겨집니다. 트레이 아이콘을 **한 번 클릭**하면 창이 다시 표시되며, 완전히 종료하려면 아이콘을 오른쪽 클릭한 뒤 **종료**를 선택하십시오.
 
-![KorEng 설정 창](verification/settings-preview.png)
+![KorEng 설정 창](docs/verification/settings-preview.png)
 
 ## v1.0.1 변경 사항
 
@@ -50,13 +50,13 @@ KorEng를 트레이에서 종료한 뒤 같은 위치의 `KorEng.exe`만 교체�
 Windows와 [.NET 10 개발 도구](https://dotnet.microsoft.com/download/dotnet/10.0)가 필요합니다.
 
 ```bat
-build.cmd --build-only
+scripts\build.cmd --build-only
 ```
 
-`dist\KorEng.exe`가 생성됩니다. 원본 프로젝트는 저장소 루트의 `KorEng.csproj`입니다. 빌드에 사용되는 다운로드와 중간 파일은 `.build`, `bin`, `obj`에 생성됩니다.
+`dist\KorEng.exe`가 생성됩니다. 원본 프로젝트는 `src\KorEng.csproj`입니다. 빌드에 사용되는 다운로드와 중간 파일은 `.build`, `src\bin`, `src\obj`에 생성됩니다.
 
 ```bat
-test.cmd
+scripts\test.cmd
 ```
 
 직접 만든 시험 창으로 검사하며 자동 실행 등록은 변경하지 않습니다. 검사 결과는 `dist\test-results`에 저장됩니다. 시험 중에는 다른 창으로 입력 초점을 옮기지 마십시오.
@@ -68,7 +68,13 @@ test.cmd
 - 입력 초점 유지, 표시·숨김·재표시, 트레이 숨김, 설정 저장·복원 검사
 - 새 실행 캐시에서 설정 창 표시까지 약 0.5초
 
-이 결과는 모든 브라우저·게임에서의 동작이나 Windows 재로그인 시험을 대신하지 않습니다. 상세 항목은 [검증결과](검증결과.txt)와 [자동 검사 기록](verification/verification.txt)을 참조하십시오.
+이 결과는 모든 브라우저·게임에서의 동작이나 Windows 재로그인 시험을 대신하지 않습니다. 상세 항목은 [검증결과](docs/검증결과.txt)와 [자동 검사 기록](docs/verification/verification.txt)을 참조하십시오.
+
+## 저장소 구성
+
+- `src/`: 프로그램 소스, 프로젝트 설정, 아이콘
+- `scripts/`: 빌드·검사 실행 도구
+- `docs/`: 사용 안내, 검증 결과, 설정 화면 이미지
 
 ## 라이선스
 

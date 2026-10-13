@@ -56,9 +56,9 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\KorEng
 이는 입력 기록이나 사용자 파일 복사본이 아닙니다.
 
 개발 및 검증
-소스: 이 프로젝트 폴더의 C# 파일, KorEng.csproj, app.manifest
-빌드: .NET 10 SDK가 설치된 환경에서 build.cmd를 실행하십시오.
-빌드용 다운로드와 임시 파일은 프로젝트 안의 .build, bin, obj에 모입니다.
+소스: src 폴더의 C# 파일, KorEng.csproj, app.manifest
+빌드: .NET 10 SDK가 설치된 환경에서 scripts\build.cmd를 실행하십시오.
+빌드용 다운로드와 임시 파일은 프로젝트 안의 .build, src\bin, src\obj에 모입니다.
 검증: KorEng.exe --self-test (직접 만든 시험 창만 표시하며 자동 실행 등록은 변경하지 않습니다.)
 검증 결과는 실행파일 옆 test-results 폴더에 생성됩니다.
 진단 옵션을 명시적으로 실행한 경우에만 탐색기의 좌표와 입력 상태를 최대 1분간 기록합니다.
