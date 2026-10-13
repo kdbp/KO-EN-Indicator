@@ -1,18 +1,10 @@
-# 빌드 산출물
+.build/
+.publish/
+.github-auth/
 bin/
 obj/
 dist/
-dist-fd/
-
-# Visual Studio / Rider
-.vs/
-.idea/
-*.user
-*.suo
-
-# 게시/배포 산출물
-publish/
-*.zip
-
-# Claude Code 로컬 설정
-.claude/
+*.settings.json
+*.tmp
+caret-diagnostics.txt
+test-results/

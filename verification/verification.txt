@@ -1,0 +1,51 @@
+PASS English layout
+PASS UK English layout
+PASS Korean native mode hidden
+PASS Korean IME Latin mode
+PASS Closed Korean IME
+PASS Failed IME status is unknown
+PASS Failed conversion is unknown
+PASS Other languages hidden
+PASS Modifier conversion bits respected
+PASS Malformed worker response rejected
+PASS Broad selection rejected
+PASS Zero height rejected
+PASS Overflow coordinate rejected
+PASS Negative monitor coordinate accepted
+PASS Empty Explorer field places marker at text inset
+PASS Empty Explorer field scales at 175 percent
+PASS Empty Explorer field supports negative monitor coordinates
+PASS Empty Explorer fallback rejects multiline surfaces
+PASS Empty Explorer fallback rejects unknown DPI
+PASS Empty Explorer fallback rejects invalid typography
+PASS Quoted startup path
+PASS Atomic settings save
+PASS Settings roundtrip
+PASS No leftover temporary settings
+PASS Damaged settings recover
+PASS Real message: Korean native hides (Korean, requests 2)
+PASS Real message: successful zero means English
+PASS Real message: closed means English
+PASS Real message: invalid handle is unknown
+PASS Version in title
+PASS Dark background
+PASS Close hides without exit
+PASS Minimize hides
+PASS Restore after minimize
+PASS Owned Win32 caret detected
+PASS Overlay visible
+PASS Overlay preserves keyboard focus (before=True, fixture=True, overlay=False, input=True)
+PASS Overlay nonactivating and click-through
+PASS Overlay remains topmost without managed activation
+PASS Overlay below caret
+PASS Overlay hides
+PASS Repeated overlay display preserves keyboard focus
+PASS Isolated worker responds within limit
+PASS Worker detects owned caret
+PASS Disabled worker rejects requests
+PASS Bundled helper protocol and invalid-target rejection
+PASS Bundled helper exits cleanly on EOF
+PASS OFF prevents helper startup
+PASS Explicit exit closes
+PASS Cold single-file UI ready under 3 seconds (484 ms)
+RESULT 50 passed, 0 failed, 0 unavailable
